@@ -82,6 +82,24 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
+        .shape-database {
+            border-radius: 50% / 20px;
+        }
+        .shape-database::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            border-radius: 50%;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+        .dark .shape-database::before {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
         .node-content {
             position: relative;
             z-index: 10;
@@ -219,6 +237,12 @@
             <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="parallelogram">
                 <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 skew-x-[-15deg] group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
                 <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Parallel</span>
+            </button>
+            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="database">
+                <div class="w-12 h-10 border-[2.5px] border-slate/20 dark:border-white/20 relative group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all" style="border-radius: 50% / 8px;">
+                    <div class="absolute top-0 left-0 right-0 h-[16px] border-b-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green transition-all"></div>
+                </div>
+                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Database</span>
             </button>
         </div>
         <button id="btn-fab" class="w-16 h-16 bg-sea-green hover:bg-mint-green text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95 border-4 border-white dark:border-charcoal">
@@ -384,7 +408,8 @@
             'rounded-rect': 'rounded-2xl',
             'rect': 'rounded-none',
             'oval': 'rounded-[100px]',
-            'parallelogram': 'skew-x-[-15deg] rounded-lg'
+            'parallelogram': 'skew-x-[-15deg] rounded-lg',
+            'database': 'shape-database'
         };
 
         function createNodeDOM(node) {
