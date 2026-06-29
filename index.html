@@ -216,94 +216,194 @@
 </head>
 <body class="bg-off-white dark:bg-charcoal text-charcoal dark:text-off-white w-full h-full overflow-hidden font-sans selection:bg-mint-green selection:text-white transition-colors duration-300">
 
-    <!-- Top Bar -->
-    <header class="fixed top-0 left-0 w-full flex justify-between items-center px-5 py-4 glass-panel z-[100] border-b border-slate/5 dark:border-white/5">
-        <h1 class="font-bold text-lg flex items-center gap-2"><i data-lucide="git-commit" class="text-sea-green"></i> Flowchart Creator</h1>
-        <div class="flex items-center gap-3">
-            <!-- Sync indicators -->
-            <span id="saving-status" class="hidden text-xs text-slate/50 dark:text-off-white/50 flex items-center gap-1.5">
-                <i data-lucide="cloud-lightning" class="w-3.5 h-3.5 animate-pulse"></i> Saving...
-            </span>
-            <span id="saved-status" class="hidden text-xs text-sea-green/80 dark:text-sea-green flex items-center gap-1.5">
-                <i data-lucide="cloud-check" class="w-3.5 h-3.5"></i> Saved
-            </span>
-            
-            <!-- User profile info -->
-            <div id="user-profile" class="hidden items-center gap-2">
-                <img id="user-avatar" class="w-7 h-7 rounded-full border border-slate/10 dark:border-white/10" src="" alt="Avatar">
-                <span id="user-name" class="text-sm font-semibold text-slate/80 dark:text-off-white/80 hidden sm:inline"></span>
+    <!-- Dashboard Page -->
+    <div id="dashboard-view" class="hidden min-h-screen w-full bg-off-white dark:bg-charcoal text-charcoal dark:text-off-white transition-colors duration-300">
+        <!-- Dashboard Header -->
+        <header class="fixed top-0 left-0 w-full flex justify-between items-center px-5 py-4 glass-panel z-[100] border-b border-slate/5 dark:border-white/5">
+            <h1 class="font-bold text-lg flex items-center gap-2"><i data-lucide="git-commit" class="text-sea-green"></i> Flowchart Creator</h1>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <img class="dashboard-user-avatar w-7 h-7 rounded-full border border-slate/10 dark:border-white/10" src="" alt="Avatar">
+                    <span class="dashboard-user-name text-sm font-semibold text-slate/80 dark:text-off-white/80 hidden sm:inline"></span>
+                </div>
+                
+                <button class="btn-dashboard-signout text-slate/60 hover:text-red-500 dark:text-off-white/60 dark:hover:text-red-400 p-2 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Sign Out">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate/10 dark:bg-white/10 mx-1"></div>
+
+                <button class="btn-dashboard-theme-toggle p-2.5 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Toggle Theme">
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="pt-24 px-6 sm:px-10 pb-16 max-w-6xl mx-auto">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight">My Projects</h2>
+                    <p class="text-slate/60 dark:text-off-white/60 text-sm mt-1">Manage and edit your flowcharts.</p>
+                </div>
+                <button id="btn-create-project" class="bg-sea-green hover:bg-mint-green text-white px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95 self-start sm:self-auto">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Create New Project
+                </button>
+            </div>
+
+            <!-- Projects Layout -->
+            <div id="projects-list" class="flex flex-col md:flex-row md:flex-wrap gap-6 w-full">
+                <div class="w-full flex items-center justify-center py-20 text-slate/50">
+                    <i data-lucide="loader" class="w-8 h-8 animate-spin text-sea-green mr-2"></i> Loading projects...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Infinite Canvas Edit Page -->
+    <div id="canvas-view" class="hidden absolute inset-0 w-full h-full">
+        <!-- Canvas Top Bar -->
+        <header class="fixed top-0 left-0 w-full flex justify-between items-center px-5 py-4 glass-panel z-[100] border-b border-slate/5 dark:border-white/5">
+            <div class="flex items-center gap-3">
+                <button id="btn-hamburger" class="block md:hidden p-2 rounded-xl hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Menu">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                
+                <button id="btn-back-to-dashboard" class="hidden md:flex items-center gap-1.5 text-slate/75 hover:text-slate dark:text-off-white/75 dark:hover:text-off-white font-semibold text-sm px-3.5 py-2 rounded-full hover:bg-slate/5 dark:hover:bg-white/5 transition-all">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Dashboard
+                </button>
+                
+                <div class="w-px h-6 bg-slate/10 dark:bg-white/10 mx-1 hidden md:block"></div>
+                
+                <div class="flex items-center gap-2">
+                    <h1 id="canvas-project-title" class="font-bold text-lg text-charcoal dark:text-off-white bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-white/20 focus:border-sea-green focus:outline-none px-1.5 py-0.5 rounded cursor-pointer" contenteditable="true" spellcheck="false" title="Click to rename project">Untitled Flowchart</h1>
+                    <span id="saving-status" class="hidden text-xs text-slate/50 dark:text-off-white/50 flex items-center gap-1.5 ml-2">
+                        <i data-lucide="cloud-lightning" class="w-3.5 h-3.5 animate-pulse"></i> Saving...
+                    </span>
+                    <span id="saved-status" class="hidden text-xs text-sea-green/80 dark:text-sea-green flex items-center gap-1.5 ml-2">
+                        <i data-lucide="cloud-check" class="w-3.5 h-3.5"></i> Saved
+                    </span>
+                </div>
             </div>
             
-            <button id="btn-signout" class="hidden text-slate/60 hover:text-red-500 dark:text-off-white/60 dark:hover:text-red-400 p-2 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Sign Out">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
-            </button>
-            
-            <div class="w-px h-6 bg-slate/10 dark:bg-white/10 mx-1"></div>
-
-            <button id="btn-theme-toggle" class="p-2.5 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Toggle Theme">
-                <i data-lucide="moon" id="icon-moon" class="w-5 h-5 block dark:hidden"></i>
-                <i data-lucide="sun" id="icon-sun" class="w-5 h-5 hidden dark:block"></i>
-            </button>
-            <button id="btn-export" class="bg-sea-green hover:bg-mint-green text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95">
-                <i data-lucide="download" class="w-4 h-4"></i> Export PNG
-            </button>
-        </div>
-    </header>
-
-    <!-- Canvas Area -->
-    <div id="viewport" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing overflow-hidden">
-        <div id="canvas-container" class="absolute top-0 left-0 w-full h-full origin-top-left">
-            <div id="canvas-grid" class="absolute inset-[-10000px] grid-bg"></div>
-            <!-- Connections Layer -->
-            <svg id="canvas-svg"></svg>
-            <!-- Nodes Layer -->
-            <div id="canvas-nodes" class="absolute top-0 left-0 w-full h-full"></div>
-        </div>
-    </div>
-
-    <!-- Context Menu -->
-    <div id="context-menu" class="fixed hidden glass-panel p-2.5 rounded-2xl shadow-xl z-[110] flex gap-2.5 transition-opacity border border-transparent dark:border-white/10">
-        <button id="ctx-color" class="w-9 h-9 rounded-full border-2 border-slate/10 dark:border-white/20 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Change Color">
-            <i data-lucide="palette" class="w-4 h-4 mix-blend-difference text-white"></i>
-        </button>
-        <button id="ctx-text-color" class="w-9 h-9 rounded-full border border-slate/10 dark:border-white/20 bg-white dark:bg-charcoal flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Toggle Text Color">
-            <i data-lucide="type" class="w-4 h-4"></i>
-        </button>
-        <div class="w-px h-8 bg-slate/10 dark:bg-white/10 mx-0.5 self-center"></div>
-        <button id="ctx-delete" class="w-9 h-9 rounded-full bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Delete Node">
-            <i data-lucide="trash-2" class="w-4 h-4 text-red-500 dark:text-red-400"></i>
-        </button>
-    </div>
-
-    <!-- FAB -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center">
-        <div id="fab-menu" class="hidden flex gap-4 mb-5 glass-panel p-4 rounded-3xl shadow-xl transition-all duration-300 origin-bottom scale-95 opacity-0 border border-transparent dark:border-white/10">
-            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rounded-rect">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-xl group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rounded</span>
-            </button>
-            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rect">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rectangle</span>
-            </button>
-            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="oval">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Oval</span>
-            </button>
-            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="parallelogram">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 skew-x-[-15deg] group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Parallel</span>
-            </button>
-            <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="database">
-                <div class="w-12 h-10 border-[2.5px] border-slate/20 dark:border-white/20 relative group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all" style="border-radius: 50% / 8px;">
-                    <div class="absolute top-0 left-0 right-0 h-[16px] border-b-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green transition-all"></div>
+            <div class="hidden md:flex items-center gap-3">
+                <div class="canvas-user-profile flex items-center gap-2">
+                    <img class="canvas-user-avatar w-7 h-7 rounded-full border border-slate/10 dark:border-white/10" src="" alt="Avatar">
+                    <span class="canvas-user-name text-sm font-semibold text-slate/80 dark:text-off-white/80 hidden lg:inline"></span>
                 </div>
-                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Database</span>
+                
+                <button class="btn-canvas-signout text-slate/60 hover:text-red-500 dark:text-off-white/60 dark:hover:text-red-400 p-2 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Sign Out">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate/10 dark:bg-white/10 mx-1"></div>
+
+                <button class="btn-canvas-theme-toggle p-2.5 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Toggle Theme">
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+                <button id="btn-export" class="bg-sea-green hover:bg-mint-green text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95">
+                    <i data-lucide="download" class="w-4 h-4"></i> Export PNG
+                </button>
+            </div>
+        </header>
+
+        <!-- Canvas Area -->
+        <div id="viewport" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing overflow-hidden">
+            <div id="canvas-container" class="absolute top-0 left-0 w-full h-full origin-top-left">
+                <div id="canvas-grid" class="absolute inset-[-10000px] grid-bg"></div>
+                <svg id="canvas-svg"></svg>
+                <div id="canvas-nodes" class="absolute top-0 left-0 w-full h-full"></div>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div id="context-menu" class="fixed hidden glass-panel p-2.5 rounded-2xl shadow-xl z-[110] flex gap-2.5 transition-opacity border border-transparent dark:border-white/10">
+            <button id="ctx-color" class="w-9 h-9 rounded-full border-2 border-slate/10 dark:border-white/20 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Change Color">
+                <i data-lucide="palette" class="w-4 h-4 mix-blend-difference text-white"></i>
+            </button>
+            <button id="ctx-text-color" class="w-9 h-9 rounded-full border border-slate/10 dark:border-white/20 bg-white dark:bg-charcoal flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Toggle Text Color">
+                <i data-lucide="type" class="w-4 h-4"></i>
+            </button>
+            <div class="w-px h-8 bg-slate/10 dark:bg-white/10 mx-0.5 self-center"></div>
+            <button id="ctx-delete" class="w-9 h-9 rounded-full bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Delete Node">
+                <i data-lucide="trash-2" class="w-4 h-4 text-red-500 dark:text-red-400"></i>
             </button>
         </div>
-        <button id="btn-fab" class="w-16 h-16 bg-sea-green hover:bg-mint-green text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95 border-4 border-white dark:border-charcoal">
-            <i data-lucide="plus" class="w-7 h-7 transform transition-transform duration-300" id="fab-icon"></i>
-        </button>
+
+        <!-- FAB -->
+        <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center">
+            <div id="fab-menu" class="hidden flex gap-4 mb-5 glass-panel p-4 rounded-3xl shadow-xl transition-all duration-300 origin-bottom scale-95 opacity-0 border border-transparent dark:border-white/10">
+                <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rounded-rect">
+                    <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-xl group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                    <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rounded</span>
+                </button>
+                <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rect">
+                    <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                    <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rectangle</span>
+                </button>
+                <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="oval">
+                    <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                    <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Oval</span>
+                </button>
+                <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="parallelogram">
+                    <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 skew-x-[-15deg] group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                    <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Parallel</span>
+                </button>
+                <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="database">
+                    <div class="w-12 h-10 border-[2.5px] border-slate/20 dark:border-white/20 relative group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all" style="border-radius: 50% / 8px;">
+                        <div class="absolute top-0 left-0 right-0 h-[16px] border-b-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green transition-all"></div>
+                    </div>
+                    <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Database</span>
+                </button>
+            </div>
+            <button id="btn-fab" class="w-16 h-16 bg-sea-green hover:bg-mint-green text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95 border-4 border-white dark:border-charcoal">
+                <i data-lucide="plus" class="w-7 h-7 transform transition-transform duration-300" id="fab-icon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hamburger Drawer Overlay -->
+    <div id="hamburger-drawer" class="fixed inset-0 w-full h-full bg-charcoal/40 dark:bg-black/60 z-[250] hidden transition-opacity duration-300">
+        <div id="drawer-content" class="absolute top-0 left-0 h-full w-[280px] bg-white dark:bg-charcoal shadow-2xl p-6 flex flex-col justify-between border-r border-slate/5 dark:border-white/5 transform -translate-x-full transition-transform duration-300">
+            <div>
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="git-commit" class="text-sea-green"></i> Menu</h3>
+                    <button id="btn-close-drawer" class="p-2 rounded-xl hover:bg-slate/10 dark:hover:bg-white/10 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate/5 dark:bg-white/5 mb-6">
+                    <img class="drawer-user-avatar w-10 h-10 rounded-full border border-slate/10 dark:border-white/10" src="" alt="Avatar">
+                    <div class="flex flex-col min-w-0">
+                        <span class="drawer-user-name text-sm font-semibold text-slate/80 dark:text-off-white/80 truncate">User</span>
+                        <span class="drawer-user-email text-xs text-slate/50 dark:text-off-white/50 truncate">user@gmail.com</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button id="btn-drawer-dashboard" class="w-full flex items-center gap-3 text-slate/85 dark:text-off-white/85 hover:text-sea-green dark:hover:text-sea-green font-semibold text-sm p-3.5 rounded-xl hover:bg-slate/5 dark:hover:bg-white/5 transition-all text-left">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+                    </button>
+                    <button id="btn-drawer-export" class="w-full flex items-center gap-3 text-slate/85 dark:text-off-white/85 hover:text-sea-green dark:hover:text-sea-green font-semibold text-sm p-3.5 rounded-xl hover:bg-slate/5 dark:hover:bg-white/5 transition-all text-left">
+                        <i data-lucide="download" class="w-5 h-5"></i> Export PNG
+                    </button>
+                    <button id="btn-drawer-theme-toggle" class="w-full flex items-center gap-3 text-slate/85 dark:text-off-white/85 hover:text-sea-green dark:hover:text-sea-green font-semibold text-sm p-3.5 rounded-xl hover:bg-slate/5 dark:hover:bg-white/5 transition-all text-left">
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                        <span>Toggle Theme</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <button class="btn-drawer-signout w-full flex items-center gap-3 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-semibold text-sm p-3.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 transition-all text-left">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Login Screen Overlay -->
@@ -335,13 +435,11 @@
             anonKey: 'anon_05b88e8ae92fd0f7582ebf277a3b00d6c96382a97c2af104bd135d35dbaebfaf'
         });
 
-        // --- Initialize Lucide Icons ---
-        lucide.createIcons();
-
-        // --- Theme Toggle ---
-        const themeToggleBtn = document.getElementById('btn-theme-toggle');
-        themeToggleBtn.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
+        // --- Theme Toggle (Dashboard + Canvas) ---
+        document.querySelectorAll('.btn-dashboard-theme-toggle, .btn-canvas-theme-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
         });
 
         // --- Data State ---
@@ -353,20 +451,22 @@
         };
 
         let currentUser = null;
-        let flowchartRowId = null;
+        let currentProjectId = null;
+        let projects = [];
         let saveTimeout = null;
 
         function showLoginScreen(show) {
             const loginScreen = document.getElementById('login-screen');
+            const dashboardView = document.getElementById('dashboard-view');
+            const canvasView = document.getElementById('canvas-view');
             if (show) {
                 loginScreen.classList.remove('hidden');
-                document.getElementById('btn-signout').classList.add('hidden');
-                document.getElementById('user-profile').classList.add('hidden');
+                dashboardView.classList.add('hidden');
+                canvasView.classList.add('hidden');
             } else {
                 loginScreen.classList.add('hidden');
-                document.getElementById('btn-signout').classList.remove('hidden');
-                document.getElementById('user-profile').classList.remove('hidden');
-                document.getElementById('user-profile').classList.add('flex');
+                dashboardView.classList.remove('hidden');
+                canvasView.classList.add('hidden');
             }
         }
 
@@ -376,8 +476,18 @@
             const avatarUrl = profile.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
             const name = profile.name || currentUser.email || 'User';
             
-            document.getElementById('user-avatar').src = avatarUrl;
-            document.getElementById('user-name').innerText = name;
+            // Dashboard
+            document.querySelectorAll('.dashboard-user-avatar').forEach(img => img.src = avatarUrl);
+            document.querySelectorAll('.dashboard-user-name').forEach(span => span.innerText = name);
+            
+            // Canvas
+            document.querySelectorAll('.canvas-user-avatar').forEach(img => img.src = avatarUrl);
+            document.querySelectorAll('.canvas-user-name').forEach(span => span.innerText = name);
+
+            // Drawer
+            document.querySelectorAll('.drawer-user-avatar').forEach(img => img.src = avatarUrl);
+            document.querySelectorAll('.drawer-user-name').forEach(span => span.innerText = name);
+            document.querySelectorAll('.drawer-user-email').forEach(span => span.innerText = currentUser.email);
         }
 
         function showSavingStatus(status) {
@@ -400,7 +510,7 @@
         }
 
         function saveStateToDB() {
-            if (!currentUser || !flowchartRowId) return;
+            if (!currentUser || !currentProjectId) return;
             showSavingStatus('saving');
             
             if (saveTimeout) clearTimeout(saveTimeout);
@@ -412,7 +522,7 @@
                         connections: state.connections,
                         pan: state.pan
                     })
-                    .eq('id', flowchartRowId);
+                    .eq('id', currentProjectId);
                 
                 if (error) {
                     console.error('Error saving state:', error);
@@ -423,68 +533,232 @@
             }, 1000);
         }
 
-        async function loadFlowchartFromDB() {
-            try {
-                const { data, error } = await insforge.database
-                    .from('flowcharts')
-                    .select()
-                    .maybeSingle();
-                
-                if (error) throw error;
-                
-                if (data) {
-                    flowchartRowId = data.id;
-                    state.nodes = data.nodes || [];
-                    state.connections = data.connections || [];
-                    state.pan = data.pan || { x: 0, y: 0, scale: 1 };
-                    
-                    let maxId = 0;
-                    state.nodes.forEach(n => {
-                        const numericId = parseInt(n.id.replace('node-', ''));
-                        if (!isNaN(numericId) && numericId > maxId) {
-                            maxId = numericId;
-                        }
-                    });
-                    idCounter = maxId;
-                    
-                    render();
-                    updateTransform();
-                } else {
-                    const defaultNodes = [
-                        { id: 'node-1', type: 'oval', x: 200, y: 150, bgColor: 'bg-pure-white dark:bg-slate-800', textColor: 'text-charcoal dark:text-off-white', text: 'Start Process' },
-                        { id: 'node-2', type: 'rounded-rect', x: 200, y: 350, bgColor: 'bg-mint-green dark:bg-sea-green', textColor: 'text-white', text: 'Execute Action' }
-                    ];
-                    const defaultConnections = [
-                        { id: 'c1', from: {node: 'node-1', anchor: 's'}, to: {node: 'node-2', anchor: 'n'} }
-                    ];
-                    const defaultPan = { x: window.innerWidth / 2 - 270, y: 50, scale: 1 };
-                    
-                    const { data: newRow, error: insertError } = await insforge.database
-                        .from('flowcharts')
-                        .insert([{
-                            nodes: defaultNodes,
-                            connections: defaultConnections,
-                            pan: defaultPan
-                        }])
-                        .select()
-                        .single();
-                        
-                    if (insertError) throw insertError;
-                    
-                    if (newRow) {
-                        flowchartRowId = newRow.id;
-                        state.nodes = newRow.nodes || [];
-                        state.connections = newRow.connections || [];
-                        state.pan = newRow.pan || { x: 0, y: 0, scale: 1 };
-                        idCounter = 2;
-                        render();
-                        updateTransform();
-                    }
-                }
-            } catch (err) {
-                console.error('Error loading flowchart:', err);
-                alert('Error loading flowchart from cloud storage.');
+        // --- Helper: Format Time ---
+        function timeAgo(dateString) {
+            const now = new Date();
+            const past = new Date(dateString);
+            const msPerMinute = 60 * 1000;
+            const msPerHour = msPerMinute * 60;
+            const msPerDay = msPerHour * 24;
+            
+            const elapsed = now - past;
+            
+            if (elapsed < msPerMinute) {
+                 return 'just now';   
+            } else if (elapsed < msPerHour) {
+                 return Math.round(elapsed/msPerMinute) + 'm ago';   
+            } else if (elapsed < msPerDay ) {
+                 return Math.round(elapsed/msPerHour ) + 'h ago';   
+            } else {
+                 return Math.round(elapsed/msPerDay) + 'd ago';   
             }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // --- Projects Operations ---
+        async function loadDashboardProjects() {
+            const projectsList = document.getElementById('projects-list');
+            projectsList.innerHTML = `
+                <div class="w-full flex items-center justify-center py-20 text-slate/50">
+                    <i data-lucide="loader" class="w-8 h-8 animate-spin text-sea-green mr-2"></i> Loading projects...
+                </div>
+            `;
+            lucide.createIcons();
+            
+            const { data, error } = await insforge.database
+                .from('flowcharts')
+                .select()
+                .order('updated_at', { ascending: false });
+                
+            if (error) {
+                console.error('Error fetching projects:', error);
+                alert('Failed to load projects.');
+                return;
+            }
+            
+            projects = data || [];
+            renderProjectsList();
+        }
+
+        function renderProjectsList() {
+            const projectsList = document.getElementById('projects-list');
+            if (projects.length === 0) {
+                projectsList.innerHTML = `
+                    <div class="w-full flex flex-col items-center justify-center py-20 text-slate/40 text-center">
+                        <i data-lucide="folder-open" class="w-12 h-12 text-slate/20 mb-3"></i>
+                        <p class="font-semibold">No projects yet</p>
+                        <p class="text-xs text-slate/50 dark:text-off-white/50 mt-1 mb-4">Create your first flowchart to get started.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            let html = '';
+            projects.forEach(project => {
+                html += `
+                    <div class="glass-panel p-5 rounded-2xl border border-slate/5 dark:border-white/5 flex flex-col justify-between hover:border-sea-green/50 dark:hover:border-sea-green/50 transition-all duration-300 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] min-w-[280px] shadow-sm hover:shadow-md cursor-pointer group" data-project-id="${project.id}">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="text-xs text-slate/40 dark:text-off-white/40 font-medium">Flowchart</span>
+                                <div class="flex items-center gap-1" onclick="event.stopPropagation();">
+                                    <button class="btn-rename-project p-1.5 rounded-lg hover:bg-slate/10 dark:hover:bg-white/10 text-slate/50 hover:text-slate dark:text-off-white/50 dark:hover:text-off-white transition-colors" title="Rename" data-project-id="${project.id}">
+                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button class="btn-delete-project p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate/50 hover:text-red-500 dark:text-off-white/50 dark:hover:text-red-400 transition-colors" title="Delete" data-project-id="${project.id}">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-charcoal dark:text-off-white group-hover:text-sea-green transition-colors break-words mb-1">${escapeHtml(project.name)}</h3>
+                            <p class="text-[11px] text-slate/50 dark:text-off-white/50">Updated ${timeAgo(project.updated_at)}</p>
+                        </div>
+                        <div class="mt-6 flex justify-between items-center">
+                            <span class="text-xs font-semibold text-sea-green flex items-center gap-1">
+                                Open Editor <i data-lucide="arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            projectsList.innerHTML = html;
+            lucide.createIcons();
+            
+            projectsList.querySelectorAll('[data-project-id]').forEach(card => {
+                card.addEventListener('click', () => {
+                    openProject(card.dataset.projectId);
+                });
+            });
+            
+            projectsList.querySelectorAll('.btn-rename-project').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    renameProjectPrompt(btn.dataset.projectId);
+                });
+            });
+
+            projectsList.querySelectorAll('.btn-delete-project').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteProjectConfirm(btn.dataset.projectId);
+                });
+            });
+        }
+
+        async function createNewProject() {
+            const name = prompt("Enter project name:", "New Flowchart");
+            if (!name) return;
+            
+            const defaultNodes = [
+                { id: 'node-1', type: 'oval', x: 200, y: 150, bgColor: 'bg-pure-white dark:bg-slate-800', textColor: 'text-charcoal dark:text-off-white', text: 'Start Process' },
+                { id: 'node-2', type: 'rounded-rect', x: 200, y: 350, bgColor: 'bg-mint-green dark:bg-sea-green', textColor: 'text-white', text: 'Execute Action' }
+            ];
+            const defaultConnections = [
+                { id: 'c1', from: {node: 'node-1', anchor: 's'}, to: {node: 'node-2', anchor: 'n'} }
+            ];
+            const defaultPan = { x: window.innerWidth / 2 - 270, y: 50, scale: 1 };
+            
+            const { data, error } = await insforge.database
+                .from('flowcharts')
+                .insert([{
+                    name: name,
+                    nodes: defaultNodes,
+                    connections: defaultConnections,
+                    pan: defaultPan
+                }])
+                .select()
+                .single();
+                
+            if (error) {
+                console.error('Error creating project:', error);
+                alert('Failed to create new project.');
+                return;
+            }
+            
+            projects.unshift(data);
+            openProject(data.id);
+        }
+
+        function openProject(projectId) {
+            currentProjectId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            
+            document.getElementById('canvas-project-title').innerText = project.name;
+            
+            state.nodes = project.nodes || [];
+            state.connections = project.connections || [];
+            state.pan = project.pan || { x: 0, y: 0, scale: 1 };
+            
+            let maxId = 0;
+            state.nodes.forEach(n => {
+                const numericId = parseInt(n.id.replace('node-', ''));
+                if (!isNaN(numericId) && numericId > maxId) {
+                    maxId = numericId;
+                }
+            });
+            idCounter = maxId;
+            
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('canvas-view').classList.remove('hidden');
+            
+            render();
+            updateTransform();
+        }
+
+        async function renameProjectPrompt(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const newName = prompt("Rename project:", project.name);
+            if (!newName || newName === project.name) return;
+            
+            const { error } = await insforge.database
+                .from('flowcharts')
+                .update({ name: newName })
+                .eq('id', projectId);
+                
+            if (error) {
+                console.error('Error renaming:', error);
+                alert('Failed to rename project.');
+            } else {
+                project.name = newName;
+                renderProjectsList();
+            }
+        }
+
+        async function deleteProjectConfirm(projectId) {
+            if (!confirm("Are you sure you want to delete this flowchart? This cannot be undone.")) return;
+            
+            const { error } = await insforge.database
+                .from('flowcharts')
+                .delete()
+                .eq('id', projectId);
+                
+            if (error) {
+                console.error('Error deleting:', error);
+                alert('Failed to delete project.');
+            } else {
+                projects = projects.filter(p => p.id !== projectId);
+                renderProjectsList();
+            }
+        }
+
+        function backToDashboard() {
+            currentProjectId = null;
+            document.getElementById('canvas-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            loadDashboardProjects();
         }
 
         async function initAuth() {
@@ -496,7 +770,7 @@
                 currentUser = data.user;
                 showLoginScreen(false);
                 updateUserProfileUI();
-                await loadFlowchartFromDB();
+                await loadDashboardProjects();
             }
         }
 
@@ -526,14 +800,89 @@
             }
         });
 
-        document.getElementById('btn-signout').addEventListener('click', async () => {
-            const { error } = await insforge.auth.signOut();
-            if (error) {
-                alert('Sign out failed: ' + error.message);
-            } else {
-                currentUser = null;
-                showLoginScreen(true);
+        // Signout listeners for all buttons (Dashboard, Canvas, Drawer)
+        document.querySelectorAll('.btn-dashboard-signout, .btn-canvas-signout, .btn-drawer-signout').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const { error } = await insforge.auth.signOut();
+                if (error) {
+                    alert('Sign out failed: ' + error.message);
+                } else {
+                    currentUser = null;
+                    showLoginScreen(true);
+                }
+            });
+        });
+
+        // Dashboard buttons wiring
+        document.getElementById('btn-create-project').addEventListener('click', createNewProject);
+        document.getElementById('btn-back-to-dashboard').addEventListener('click', backToDashboard);
+
+        // Project inline renaming listener
+        const canvasTitle = document.getElementById('canvas-project-title');
+        canvasTitle.addEventListener('blur', async () => {
+            const newName = canvasTitle.innerText.trim() || 'Untitled Flowchart';
+            canvasTitle.innerText = newName;
+            
+            if (currentProjectId) {
+                showSavingStatus('saving');
+                const { error } = await insforge.database
+                    .from('flowcharts')
+                    .update({ name: newName })
+                    .eq('id', currentProjectId);
+                if (error) {
+                    console.error('Error saving title:', error);
+                    showSavingStatus('error');
+                } else {
+                    showSavingStatus('saved');
+                    const proj = projects.find(p => p.id === currentProjectId);
+                    if (proj) proj.name = newName;
+                }
             }
+        });
+        canvasTitle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                canvasTitle.blur();
+            }
+        });
+
+        // Hamburger menu controls
+        const hamburgerBtn = document.getElementById('btn-hamburger');
+        const hamburgerDrawer = document.getElementById('hamburger-drawer');
+        const drawerContent = document.getElementById('drawer-content');
+        const closeDrawerBtn = document.getElementById('btn-close-drawer');
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerDrawer.classList.remove('hidden');
+            setTimeout(() => {
+                drawerContent.classList.remove('-translate-x-full');
+            }, 10);
+        });
+
+        function closeDrawer() {
+            drawerContent.classList.add('-translate-x-full');
+            setTimeout(() => {
+                hamburgerDrawer.classList.add('hidden');
+            }, 300);
+        }
+
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        hamburgerDrawer.addEventListener('click', (e) => {
+            if (e.target === hamburgerDrawer) closeDrawer();
+        });
+
+        document.getElementById('btn-drawer-dashboard').addEventListener('click', () => {
+            closeDrawer();
+            backToDashboard();
+        });
+
+        document.getElementById('btn-drawer-export').addEventListener('click', () => {
+            closeDrawer();
+            document.getElementById('btn-export').click();
+        });
+
+        document.getElementById('btn-drawer-theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
         });
 
         const bgColors = ['bg-pure-white dark:bg-slate-800', 'bg-slate dark:bg-slate-600', 'bg-mint-green dark:bg-sea-green', 'bg-charcoal dark:bg-black'];
