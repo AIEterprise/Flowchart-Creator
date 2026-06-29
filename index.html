@@ -112,7 +112,7 @@
             background: #1E1E24;
         }
 
-        .node-group:hover .anchor, .anchor.active {
+        .node-group:hover .anchor, body.is-connecting .anchor {
             opacity: 1;
         }
 
@@ -594,6 +594,7 @@
 
         function startConnection(nodeId, dir, clientX, clientY) {
             isConnecting = true;
+            document.body.classList.add('is-connecting');
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             path.classList.add('connection-line', 'connection-line-temp');
             canvasSvg.appendChild(path);
@@ -617,6 +618,7 @@
 
         function cancelConnection() {
             isConnecting = false;
+            document.body.classList.remove('is-connecting');
             if(currentConnection && currentConnection.tempPathEl) {
                 currentConnection.tempPathEl.remove();
             }
