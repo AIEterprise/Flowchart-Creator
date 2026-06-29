@@ -104,6 +104,7 @@
             border-radius: 50%;
             z-index: 20;
             opacity: 0;
+            pointer-events: none;
             transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: crosshair;
         }
@@ -112,8 +113,9 @@
             background: #1E1E24;
         }
 
-        .node-group:hover .anchor, body.is-connecting .anchor {
+        .node-group.selected .anchor, body.is-connecting .anchor {
             opacity: 1;
+            pointer-events: auto;
         }
 
         .anchor-n { top: -6px; left: 50%; transform: translateX(-50%); }
@@ -515,6 +517,12 @@
             el.style.left = node.x + 'px';
             el.style.top = node.y + 'px';
             
+            if (state.selectedNodeId === node.id) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+            
             const shapeBg = el.querySelector('.node-shape-bg');
             bgColors.forEach(c => c.split(' ').forEach(cls => shapeBg.classList.remove(cls)));
             node.bgColor.split(' ').forEach(cls => shapeBg.classList.add(cls));
@@ -626,6 +634,16 @@
         }
 
         // --- Engine: Context Menu ---
+        function updateSelection() {
+            document.querySelectorAll('.node-group').forEach(el => {
+                if (el.id === state.selectedNodeId) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+
         function showContextMenu(node) {
             contextMenu.classList.remove('hidden');
             
@@ -634,11 +652,13 @@
             node.bgColor.split(' ').forEach(cls => colorBtn.classList.add(cls));
             
             updateContextMenuPosition();
+            updateSelection();
         }
 
         function hideContextMenu() {
             contextMenu.classList.add('hidden');
             state.selectedNodeId = null;
+            updateSelection();
         }
 
         function updateContextMenuPosition() {
