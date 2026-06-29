@@ -109,6 +109,13 @@
             cursor: crosshair;
         }
         
+        .anchor::after {
+            content: '';
+            position: absolute;
+            inset: -15px; /* Massively expand hit area for mobile */
+            background: transparent;
+        }
+        
         .dark .anchor {
             background: #1E1E24;
         }
@@ -492,9 +499,30 @@
                         let target = document.elementFromPoint(e.clientX, e.clientY);
                         currentConnection.tempPathEl.style.display = '';
 
-                        if (target && target.classList.contains('anchor')) {
-                            const targetNodeId = target.dataset.nodeId;
-                            const targetDir = target.dataset.dir;
+                        let anchorTarget = target ? target.closest('.anchor') : null;
+                        
+                        // If they missed the 12px anchor but hit the shape, auto-snap to the closest anchor!
+                        if (!anchorTarget && target) {
+                            const nodeTarget = target.closest('.node-group');
+                            if (nodeTarget) {
+                                const targetAnchors = nodeTarget.querySelectorAll('.anchor');
+                                let minDist = Infinity;
+                                targetAnchors.forEach(a => {
+                                    const rect = a.getBoundingClientRect();
+                                    const ax = rect.left + rect.width / 2;
+                                    const ay = rect.top + rect.height / 2;
+                                    const dist = Math.hypot(ax - e.clientX, ay - e.clientY);
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        anchorTarget = a;
+                                    }
+                                });
+                            }
+                        }
+
+                        if (anchorTarget) {
+                            const targetNodeId = anchorTarget.dataset.nodeId;
+                            const targetDir = anchorTarget.dataset.dir;
                             
                             if (targetNodeId !== currentConnection.fromNodeId) {
                                 state.connections.push({
