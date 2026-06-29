@@ -691,7 +691,6 @@
         document.getElementById('btn-export').addEventListener('click', async () => {
             if (state.nodes.length === 0) return alert("Nothing to export!");
             
-            const originalPan = { ...state.pan };
             const exportBtn = document.getElementById('btn-export');
             const originalHTML = exportBtn.innerHTML;
             exportBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Exporting...';
@@ -711,48 +710,76 @@
                     if (n.y + h > maxY) maxY = n.y + h;
                 });
                 
-                const pad = 60;
+                const pad = 80;
                 minX -= pad; minY -= pad; maxX += pad; maxY += pad;
                 
                 const width = maxX - minX;
                 const height = maxY - minY;
 
-                state.pan = { x: -minX, y: -minY, scale: 1 };
-                updateTransform();
+                // Create isolated export container
+                const exportContainer = document.createElement('div');
+                exportContainer.style.position = 'absolute';
+                exportContainer.style.top = '-9999px';
+                exportContainer.style.left = '-9999px';
+                exportContainer.style.width = width + 'px';
+                exportContainer.style.height = height + 'px';
+                exportContainer.style.backgroundColor = '#F8FAFC';
+                exportContainer.style.overflow = 'hidden';
+                exportContainer.style.zIndex = '-1000';
                 
-                // Prepare DOM for clean capture
-                document.querySelector('header').style.display = 'none';
-                fabBtn.parentElement.style.display = 'none';
-                hideContextMenu();
+                // Add grid background with offset
+                exportContainer.style.backgroundImage = 'radial-gradient(rgba(51, 65, 85, 0.12) 1.5px, transparent 1.5px)';
+                exportContainer.style.backgroundSize = '24px 24px';
+                exportContainer.style.backgroundPosition = `${-minX}px ${-minY}px`;
+
+                // Clone SVG
+                const originalSvg = document.getElementById('canvas-svg');
+                const clonedSvg = originalSvg.cloneNode(true);
+                clonedSvg.style.width = width + 'px';
+                clonedSvg.style.height = height + 'px';
+                clonedSvg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+                exportContainer.appendChild(clonedSvg);
                 
-                canvasContainer.style.width = width + 'px';
-                canvasContainer.style.height = height + 'px';
-                canvasGrid.style.inset = '0';
+                // Clone Nodes
+                const originalNodes = document.getElementById('canvas-nodes');
+                const clonedNodes = originalNodes.cloneNode(true);
+                clonedNodes.style.width = width + 'px';
+                clonedNodes.style.height = height + 'px';
+                
+                Array.from(clonedNodes.children).forEach(node => {
+                    const currentLeft = parseFloat(node.style.left) || 0;
+                    const currentTop = parseFloat(node.style.top) || 0;
+                    node.style.left = (currentLeft - minX) + 'px';
+                    node.style.top = (currentTop - minY) + 'px';
+                    // Remove dynamic states
+                    node.classList.remove('cursor-grab', 'active:cursor-grabbing');
+                    // Hide anchors in export
+                    node.querySelectorAll('.anchor').forEach(a => a.style.display = 'none');
+                });
+                
+                exportContainer.appendChild(clonedNodes);
+                document.body.appendChild(exportContainer);
 
-                // Small delay for DOM updates
-                await new Promise(r => setTimeout(r, 100));
+                // Small delay to ensure styles are applied
+                await new Promise(r => setTimeout(r, 150));
 
-                const canvas = await html2canvas(canvasContainer, {
+                const canvas = await html2canvas(exportContainer, {
                     backgroundColor: '#F8FAFC',
                     width: width,
                     height: height,
-                    scale: 2 // High res
+                    scale: 3, // High res and avoid blur
+                    useCORS: true,
+                    logging: false,
+                    windowWidth: width,
+                    windowHeight: height
                 });
 
-                // Restore
-                document.querySelector('header').style.display = 'flex';
-                fabBtn.parentElement.style.display = 'flex';
-                canvasContainer.style.width = '100%';
-                canvasContainer.style.height = '100%';
-                canvasGrid.style.inset = '-10000px';
-                
-                state.pan = originalPan;
-                updateTransform();
+                document.body.removeChild(exportContainer);
 
                 // Download Trigger
                 const link = document.createElement('a');
                 link.download = 'Flowchart-Creator-Export.png';
-                link.href = canvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
             } catch (err) {
@@ -761,8 +788,6 @@
             } finally {
                 exportBtn.innerHTML = originalHTML;
                 lucide.createIcons();
-                state.pan = originalPan;
-                updateTransform();
             }
         });
 
