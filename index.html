@@ -13,6 +13,7 @@
     
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -44,8 +45,11 @@
         }
         
         .grid-bg {
-            /* 2.5D Subtle dot matrix grid */
             background-image: radial-gradient(rgba(51, 65, 85, 0.12) 1.5px, transparent 1.5px);
+        }
+        
+        .dark .grid-bg {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
         }
 
         .glass-panel {
@@ -54,6 +58,12 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        
+        .dark .glass-panel {
+            background: rgba(30, 30, 36, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .node-shape-bg {
@@ -62,6 +72,10 @@
             z-index: 0;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        
+        .dark .node-shape-bg {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
         
         .node-group:hover .node-shape-bg {
@@ -93,6 +107,10 @@
             transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: crosshair;
         }
+        
+        .dark .anchor {
+            background: #1E1E24;
+        }
 
         .node-group:hover .anchor, .anchor.active {
             opacity: 1;
@@ -103,7 +121,6 @@
         .anchor-e { right: -6px; top: 50%; transform: translateY(-50%); }
         .anchor-w { left: -6px; top: 50%; transform: translateY(-50%); }
         
-        /* Scaling fix while maintaining centering */
         .anchor-n:hover { transform: translateX(-50%) scale(1.4); }
         .anchor-s:hover { transform: translateX(-50%) scale(1.4); }
         .anchor-e:hover { transform: translateY(-50%) scale(1.4); }
@@ -134,14 +151,20 @@
         }
     </style>
 </head>
-<body class="bg-off-white text-charcoal w-full h-full overflow-hidden font-sans selection:bg-mint-green selection:text-white">
+<body class="bg-off-white dark:bg-charcoal text-charcoal dark:text-off-white w-full h-full overflow-hidden font-sans selection:bg-mint-green selection:text-white transition-colors duration-300">
 
     <!-- Top Bar -->
-    <header class="fixed top-0 left-0 w-full flex justify-between items-center px-5 py-4 glass-panel z-[100] border-b border-slate/5">
-        <h1 class="font-bold text-lg text-charcoal flex items-center gap-2"><i data-lucide="git-commit" class="text-sea-green"></i> Flowchart Creator</h1>
-        <button id="btn-export" class="bg-sea-green hover:bg-mint-green text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95">
-            <i data-lucide="download" class="w-4 h-4"></i> Export PNG
-        </button>
+    <header class="fixed top-0 left-0 w-full flex justify-between items-center px-5 py-4 glass-panel z-[100] border-b border-slate/5 dark:border-white/5">
+        <h1 class="font-bold text-lg flex items-center gap-2"><i data-lucide="git-commit" class="text-sea-green"></i> Flowchart Creator</h1>
+        <div class="flex items-center gap-3">
+            <button id="btn-theme-toggle" class="p-2.5 rounded-full hover:bg-slate/10 dark:hover:bg-white/10 transition-colors" title="Toggle Theme">
+                <i data-lucide="moon" id="icon-moon" class="w-5 h-5 block dark:hidden"></i>
+                <i data-lucide="sun" id="icon-sun" class="w-5 h-5 hidden dark:block"></i>
+            </button>
+            <button id="btn-export" class="bg-sea-green hover:bg-mint-green text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95">
+                <i data-lucide="download" class="w-4 h-4"></i> Export PNG
+            </button>
+        </div>
     </header>
 
     <!-- Canvas Area -->
@@ -156,46 +179,52 @@
     </div>
 
     <!-- Context Menu -->
-    <div id="context-menu" class="fixed hidden glass-panel p-2.5 rounded-2xl shadow-xl z-[110] flex gap-2.5 border border-white transition-opacity">
-        <button id="ctx-color" class="w-9 h-9 rounded-full border-2 border-slate/10 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Change Color">
+    <div id="context-menu" class="fixed hidden glass-panel p-2.5 rounded-2xl shadow-xl z-[110] flex gap-2.5 transition-opacity border border-transparent dark:border-white/10">
+        <button id="ctx-color" class="w-9 h-9 rounded-full border-2 border-slate/10 dark:border-white/20 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Change Color">
             <i data-lucide="palette" class="w-4 h-4 mix-blend-difference text-white"></i>
         </button>
-        <button id="ctx-text-color" class="w-9 h-9 rounded-full border border-slate/10 bg-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Toggle Text Color">
-            <i data-lucide="type" class="w-4 h-4 text-charcoal"></i>
+        <button id="ctx-text-color" class="w-9 h-9 rounded-full border border-slate/10 dark:border-white/20 bg-white dark:bg-charcoal flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Toggle Text Color">
+            <i data-lucide="type" class="w-4 h-4"></i>
         </button>
-        <div class="w-px h-8 bg-slate/10 mx-0.5 self-center"></div>
-        <button id="ctx-delete" class="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Delete Node">
-            <i data-lucide="trash-2" class="w-4 h-4 text-red-500"></i>
+        <div class="w-px h-8 bg-slate/10 dark:bg-white/10 mx-0.5 self-center"></div>
+        <button id="ctx-delete" class="w-9 h-9 rounded-full bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 flex items-center justify-center hover:scale-110 transition-transform shadow-sm" title="Delete Node">
+            <i data-lucide="trash-2" class="w-4 h-4 text-red-500 dark:text-red-400"></i>
         </button>
     </div>
 
     <!-- FAB -->
     <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center">
-        <div id="fab-menu" class="hidden flex gap-4 mb-5 glass-panel p-4 rounded-3xl shadow-xl transition-all duration-300 origin-bottom scale-95 opacity-0 border border-white">
+        <div id="fab-menu" class="hidden flex gap-4 mb-5 glass-panel p-4 rounded-3xl shadow-xl transition-all duration-300 origin-bottom scale-95 opacity-0 border border-transparent dark:border-white/10">
             <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rounded-rect">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 rounded-xl group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 group-hover:text-sea-green">Rounded</span>
+                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-xl group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rounded</span>
             </button>
             <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="rect">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 group-hover:text-sea-green">Rectangle</span>
+                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Rectangle</span>
             </button>
             <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="oval">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 rounded-full group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 group-hover:text-sea-green">Oval</span>
+                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 rounded-full group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Oval</span>
             </button>
             <button class="add-shape group flex flex-col items-center gap-1.5" data-shape="parallelogram">
-                <div class="w-14 h-9 border-[2.5px] border-slate/20 skew-x-[-15deg] group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
-                <span class="text-[11px] font-semibold text-slate/70 group-hover:text-sea-green">Parallel</span>
+                <div class="w-14 h-9 border-[2.5px] border-slate/20 dark:border-white/20 skew-x-[-15deg] group-hover:border-sea-green dark:group-hover:border-sea-green group-hover:bg-sea-green/10 transition-all"></div>
+                <span class="text-[11px] font-semibold text-slate/70 dark:text-off-white/70 group-hover:text-sea-green dark:group-hover:text-sea-green">Parallel</span>
             </button>
         </div>
-        <button id="btn-fab" class="w-16 h-16 bg-sea-green hover:bg-mint-green text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95 border-4 border-white">
+        <button id="btn-fab" class="w-16 h-16 bg-sea-green hover:bg-mint-green text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-105 active:scale-95 border-4 border-white dark:border-charcoal">
             <i data-lucide="plus" class="w-7 h-7 transform transition-transform duration-300" id="fab-icon"></i>
         </button>
     </div>
 
     <script>
         lucide.createIcons();
+
+        // --- Theme Toggle ---
+        const themeToggleBtn = document.getElementById('btn-theme-toggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
 
         // --- Data State ---
         const state = {
@@ -205,8 +234,8 @@
             selectedNodeId: null
         };
 
-        const bgColors = ['bg-pure-white', 'bg-slate', 'bg-mint-green', 'bg-charcoal'];
-        const textColors = ['text-charcoal', 'text-white'];
+        const bgColors = ['bg-pure-white dark:bg-slate-800', 'bg-slate dark:bg-slate-600', 'bg-mint-green dark:bg-sea-green', 'bg-charcoal dark:bg-black'];
+        const textColors = ['text-charcoal dark:text-off-white', 'text-white'];
         let idCounter = 0;
 
         // --- DOM Elements ---
@@ -239,7 +268,6 @@
                 viewport.setPointerCapture(e.pointerId);
                 hideContextMenu();
                 
-                // Hide fab if open
                 if (!fabMenu.classList.contains('opacity-0')) {
                     fabBtn.click();
                 }
@@ -366,14 +394,19 @@
                 <div class="anchor anchor-w" data-node-id="${node.id}" data-dir="w"></div>
             `;
 
-            // Node Dragging
             let isDraggingNode = false;
             let dragOffset = {x:0, y:0};
+            let hasMoved = false;
+
+            const content = el.querySelector('.node-content');
 
             el.addEventListener('pointerdown', (e) => {
-                if (e.target.classList.contains('anchor') || (e.target.closest('.node-content') === e.target && e.target === document.activeElement)) return;
+                if (e.target.classList.contains('anchor')) return;
+                // If the user is currently editing text, don't interrupt their selection dragging
+                if (document.activeElement === content) return;
                 
                 isDraggingNode = true;
+                hasMoved = false;
                 e.stopPropagation();
                 
                 const nodeX = parseFloat(el.style.left);
@@ -386,11 +419,12 @@
                 
                 state.selectedNodeId = node.id;
                 showContextMenu(node);
-                canvasNodes.appendChild(el); // Bring to front
+                canvasNodes.appendChild(el); 
             });
 
             el.addEventListener('pointermove', (e) => {
                 if (isDraggingNode) {
+                    hasMoved = true;
                     const mouseUnscaledX = (e.clientX - state.pan.x) / state.pan.scale;
                     const mouseUnscaledY = (e.clientY - state.pan.y) / state.pan.scale;
                     node.x = mouseUnscaledX - dragOffset.x;
@@ -405,22 +439,35 @@
                 if(isDraggingNode) {
                     isDraggingNode = false;
                     el.releasePointerCapture(e.pointerId);
+                    
+                    // If they just clicked without dragging, focus the text
+                    if (!hasMoved) {
+                        content.focus();
+                        
+                        // Optional: Move cursor to end
+                        if (typeof window.getSelection !== "undefined" && typeof document.createRange !== "undefined") {
+                            const range = document.createRange();
+                            range.selectNodeContents(content);
+                            range.collapse(false);
+                            const sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    }
                 }
             });
 
-            // Content Editable
-            const content = el.querySelector('.node-content');
+            // Handle typing and native selection
             content.addEventListener('input', () => {
                 node.text = content.innerText;
-                renderConnections(); // Refresh links as size may shift
+                renderConnections(); 
             });
             content.addEventListener('pointerdown', (e) => {
-                e.stopPropagation(); 
-                state.selectedNodeId = node.id;
-                showContextMenu(node);
+                if (document.activeElement === content) {
+                    e.stopPropagation(); // allow text selection only if already focused
+                }
             });
 
-            // Anchor logic
             const anchors = el.querySelectorAll('.anchor');
             anchors.forEach(anchor => {
                 anchor.addEventListener('pointerdown', (e) => {
@@ -439,7 +486,6 @@
                     anchor.releasePointerCapture(e.pointerId);
                     
                     if (isConnecting && currentConnection) {
-                        // momentarily hide temp path to query underlying DOM element
                         currentConnection.tempPathEl.style.display = 'none';
                         let target = document.elementFromPoint(e.clientX, e.clientY);
                         currentConnection.tempPathEl.style.display = '';
@@ -470,19 +516,18 @@
             el.style.top = node.y + 'px';
             
             const shapeBg = el.querySelector('.node-shape-bg');
-            bgColors.forEach(c => shapeBg.classList.remove(c));
-            shapeBg.classList.add(node.bgColor);
+            bgColors.forEach(c => c.split(' ').forEach(cls => shapeBg.classList.remove(cls)));
+            node.bgColor.split(' ').forEach(cls => shapeBg.classList.add(cls));
             
-            // Add border logic specifically for pure white
-            if (node.bgColor === 'bg-pure-white') {
-                shapeBg.classList.add('border', 'border-slate/10');
+            if (node.bgColor.includes('bg-pure-white')) {
+                shapeBg.classList.add('border', 'border-slate/10', 'dark:border-white/10');
             } else {
-                shapeBg.classList.remove('border', 'border-slate/10');
+                shapeBg.classList.remove('border', 'border-slate/10', 'dark:border-white/10');
             }
             
             const content = el.querySelector('.node-content');
-            textColors.forEach(c => content.classList.remove(c));
-            content.classList.add(node.textColor);
+            textColors.forEach(c => c.split(' ').forEach(cls => content.classList.remove(cls)));
+            node.textColor.split(' ').forEach(cls => content.classList.add(cls));
             
             if(document.activeElement !== content && content.innerText !== node.text) {
                 content.innerText = node.text;
@@ -498,7 +543,6 @@
             if(!el) return {x:0, y:0};
             
             const rect = el.getBoundingClientRect();
-            // Scale and pan adjustments
             const x = (rect.left - state.pan.x) / state.pan.scale;
             const y = (rect.top - state.pan.y) / state.pan.scale;
             const w = rect.width / state.pan.scale;
@@ -584,8 +628,8 @@
             contextMenu.classList.remove('hidden');
             
             const colorBtn = document.getElementById('ctx-color');
-            bgColors.forEach(c => colorBtn.classList.remove(c));
-            colorBtn.classList.add(node.bgColor);
+            bgColors.forEach(c => c.split(' ').forEach(cls => colorBtn.classList.remove(cls)));
+            node.bgColor.split(' ').forEach(cls => colorBtn.classList.add(cls));
             
             updateContextMenuPosition();
         }
@@ -613,11 +657,10 @@
                 const idx = bgColors.indexOf(node.bgColor);
                 node.bgColor = bgColors[(idx + 1) % bgColors.length];
                 
-                // Smart contrast
-                if(node.bgColor === 'bg-charcoal' || node.bgColor === 'bg-slate') {
+                if(node.bgColor.includes('bg-charcoal') || node.bgColor.includes('bg-slate')) {
                     node.textColor = 'text-white';
                 } else {
-                    node.textColor = 'text-charcoal';
+                    node.textColor = 'text-charcoal dark:text-off-white';
                 }
                 
                 render();
@@ -651,7 +694,6 @@
             const isHidden = fabMenu.classList.contains('opacity-0');
             if (isHidden) {
                 fabMenu.classList.remove('hidden');
-                // Trigger reflow
                 void fabMenu.offsetWidth;
                 fabMenu.classList.remove('scale-95', 'opacity-0');
                 fabMenu.classList.add('scale-100', 'opacity-100');
@@ -668,7 +710,6 @@
             btn.addEventListener('click', () => {
                 const type = btn.dataset.shape;
                 
-                // Spawn at center of current view
                 const cx = (window.innerWidth / 2 - state.pan.x) / state.pan.scale - 70;
                 const cy = (window.innerHeight / 2 - state.pan.y) / state.pan.scale - 30;
 
@@ -677,8 +718,8 @@
                     type: type,
                     x: cx,
                     y: cy,
-                    bgColor: 'bg-pure-white',
-                    textColor: 'text-charcoal',
+                    bgColor: 'bg-pure-white dark:bg-slate-800',
+                    textColor: 'text-charcoal dark:text-off-white',
                     text: 'Process Step'
                 });
                 
@@ -697,7 +738,6 @@
             lucide.createIcons();
 
             try {
-                // Compute bounds
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 state.nodes.forEach(n => {
                     if (n.x < minX) minX = n.x;
@@ -716,23 +756,26 @@
                 const width = maxX - minX;
                 const height = maxY - minY;
 
-                // Create isolated export container
                 const exportContainer = document.createElement('div');
                 exportContainer.style.position = 'absolute';
                 exportContainer.style.top = '-9999px';
                 exportContainer.style.left = '-9999px';
                 exportContainer.style.width = width + 'px';
                 exportContainer.style.height = height + 'px';
-                exportContainer.style.backgroundColor = '#F8FAFC';
+                
+                const isDark = document.documentElement.classList.contains('dark');
+                exportContainer.style.backgroundColor = isDark ? '#1E1E24' : '#F8FAFC';
                 exportContainer.style.overflow = 'hidden';
                 exportContainer.style.zIndex = '-1000';
                 
-                // Add grid background with offset
-                exportContainer.style.backgroundImage = 'radial-gradient(rgba(51, 65, 85, 0.12) 1.5px, transparent 1.5px)';
+                if(isDark) {
+                    exportContainer.style.backgroundImage = 'radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px)';
+                } else {
+                    exportContainer.style.backgroundImage = 'radial-gradient(rgba(51, 65, 85, 0.12) 1.5px, transparent 1.5px)';
+                }
                 exportContainer.style.backgroundSize = '24px 24px';
                 exportContainer.style.backgroundPosition = `${-minX}px ${-minY}px`;
 
-                // Clone SVG
                 const originalSvg = document.getElementById('canvas-svg');
                 const clonedSvg = originalSvg.cloneNode(true);
                 clonedSvg.style.width = width + 'px';
@@ -740,7 +783,6 @@
                 clonedSvg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
                 exportContainer.appendChild(clonedSvg);
                 
-                // Clone Nodes
                 const originalNodes = document.getElementById('canvas-nodes');
                 const clonedNodes = originalNodes.cloneNode(true);
                 clonedNodes.style.width = width + 'px';
@@ -751,23 +793,20 @@
                     const currentTop = parseFloat(node.style.top) || 0;
                     node.style.left = (currentLeft - minX) + 'px';
                     node.style.top = (currentTop - minY) + 'px';
-                    // Remove dynamic states
                     node.classList.remove('cursor-grab', 'active:cursor-grabbing');
-                    // Hide anchors in export
                     node.querySelectorAll('.anchor').forEach(a => a.style.display = 'none');
                 });
                 
                 exportContainer.appendChild(clonedNodes);
                 document.body.appendChild(exportContainer);
 
-                // Small delay to ensure styles are applied
                 await new Promise(r => setTimeout(r, 150));
 
                 const canvas = await html2canvas(exportContainer, {
-                    backgroundColor: '#F8FAFC',
+                    backgroundColor: isDark ? '#1E1E24' : '#F8FAFC',
                     width: width,
                     height: height,
-                    scale: 3, // High res and avoid blur
+                    scale: 3, 
                     useCORS: true,
                     logging: false,
                     windowWidth: width,
@@ -776,7 +815,6 @@
 
                 document.body.removeChild(exportContainer);
 
-                // Download Trigger
                 const link = document.createElement('a');
                 link.download = 'Flowchart-Creator-Export.png';
                 link.href = canvas.toDataURL('image/png', 1.0);
@@ -793,12 +831,11 @@
 
         // --- Init State ---
         setTimeout(() => {
-            state.nodes.push({ id: 'node-1', type: 'oval', x: 200, y: 150, bgColor: 'bg-pure-white', textColor: 'text-charcoal', text: 'Start Process' });
-            state.nodes.push({ id: 'node-2', type: 'rounded-rect', x: 200, y: 350, bgColor: 'bg-mint-green', textColor: 'text-white', text: 'Execute Action' });
+            state.nodes.push({ id: 'node-1', type: 'oval', x: 200, y: 150, bgColor: 'bg-pure-white dark:bg-slate-800', textColor: 'text-charcoal dark:text-off-white', text: 'Start Process' });
+            state.nodes.push({ id: 'node-2', type: 'rounded-rect', x: 200, y: 350, bgColor: 'bg-mint-green dark:bg-sea-green', textColor: 'text-white', text: 'Execute Action' });
             state.connections.push({ id: 'c1', from: {node: 'node-1', anchor: 's'}, to: {node: 'node-2', anchor: 'n'} });
             idCounter = 2;
             
-            // Center Viewport nicely
             state.pan.x = window.innerWidth / 2 - 270;
             state.pan.y = 50;
             updateTransform();
